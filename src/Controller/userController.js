@@ -1,9 +1,9 @@
 const userModel = require('../Models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const { isValidString,
+const {
     isValidName,
-    isValidMail,
+    isValidEmail,
     isValidPhone,
     isValidPassword,} = require('../Validator/validator')
 
@@ -21,7 +21,7 @@ const register = async function(req,res){
         if(!age){
             return res.status(400).send({status:false,message:"Enter age"})
         }
-        if(!isValidAge(age)){
+        if(Number.isNaN(age)){
             return res.status(400).send({status:false,message:"Enter valid age"})
         }
         obj["age"] = age
@@ -31,22 +31,22 @@ const register = async function(req,res){
         if(!isValidPhone(phone)){
             return res.status(400).send({status:false,message:"Enter a valid phone"})
         }
-        obj["phone"] = phone
         if(!email){
             return res.status(400).send({status:false,message:"Enter email"})
         }
         if(!isValidEmail(email)){
             return res.status(400).send({status:false,message:"Enter valid email"})
         }
-        obj["email"] = email
         const isDuplicate = await userModel.findOne({$or:[{email:email},{phone:phone}]})
         if(isDuplicate){
             return res.status(409).send({status:false,message:"E-mail or phone number already in use"})
         }
+        obj["email"] = email
+        obj["phone"] = phone
         if(!designation){
             return res.status(400).send({status:false,message:"Enter Designation"})
         }
-        if(!isValidDesignation(designation)){
+        if(!isValidName(designation)){
             return res.status(400).send({status:false,message:"Enter valid designation"})
         }
         obj["designation"] = designation
@@ -56,8 +56,10 @@ const register = async function(req,res){
         if(!isValidPassword(password)){
             return res.status(400).send({status:false,message:"This is a required field"})
         }
-        let codedPassword = bcrypt.hash(password,10)
+        obj["password"] = password
+        let codedPassword = await bcrypt.hash(password,10)
         obj["codedPassword"] = codedPassword
+        console.log(obj)
         let data = await userModel.create(obj)
         let token = jwt.sign(
             {
@@ -67,8 +69,9 @@ const register = async function(req,res){
               "rt647ysbwf$#@%&*ejm",
               { expiresIn: "24h" }
         )
-        return res.status(200).send({status:true,token:token})
+        return res.status(200).send({status:true,userId:data._id,token:token})
     }catch(error){
+        console.log(error)
         return res.status(500).send({status:false,Error:error.message})
     }
 }
@@ -103,7 +106,7 @@ const login = async function(req,res){
         { expiresIn: "24h" }
     )
 
-    return res.status(201).send({status:true,token:token})
+    return res.status(201).send({status:true,userId:user._id,token:token})
     }catch(error){
         return res.status(500).send({status:false,Error:error.message})
     }
@@ -111,7 +114,7 @@ const login = async function(req,res){
 
 const getUser = async function(req,res){
     try{
-        let id = req.params.id
+        return res.status(200).send({status:true,data:req.user})
     }catch(error){
         return res.status(500).send({status:false,Error:message.error})
     }

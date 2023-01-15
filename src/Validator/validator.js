@@ -1,17 +1,8 @@
-const isValidString = function (value) {
-    if (!value) return false;
-    if (typeof value === "undefined" || value === null) return false;
-    if (value.length === 0) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    else if (typeof value === "string") return true;
-  };
-  
-
 const isValidName = function(name){
     return /^[a-z A-Z]+$/.test(name)
 }
 
-const isValidMail = function (email) {
+const isValidEmail = function (email) {
     return /^([0-9a-z]([-_\\.]*[0-9a-z]+)*)@([a-z]([-_\\.]*[a-z]+)*)[\\.]([a-z]{2,9})+$/.test(email);
 };
 
@@ -25,8 +16,8 @@ const isValidPassword = function (pass) {
     return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(pass);
   };
 
-module.exports = { isValidString,
+module.exports = {
     isValidName,
-    isValidMail,
+    isValidEmail,
     isValidPhone,
     isValidPassword,}
